@@ -39,9 +39,49 @@ export class MusicNotesInputValidationService {
   getCustomizationArgsWarnings(
     customizationArgs: MusicNotesInputCustomizationArgs
   ): Warning[] {
-    // TODO(#20442): Implement customization args validations.
-    return [];
-  }
+    var warningsList: Warning[] = [];     
+
+    this.baseInteractionValidationServiceInstance.requireCustomizationArguments(
+      customizationArgs,
+      ['sequenceToGuess']
+    )
+
+    // Check if no note is provided.
+    if (!customizationArgs.sequenceToGuess || customizationArgs.sequenceToGuess.value.length === 0) {
+      warningsList.push({
+        type: 'ERROR',
+        message: 'No notes provided. Please input at least one note.',
+      });
+    }
+  
+    // Checks note value.
+    const validNotes = ['A4', 'B4', 'C4', 'D4', 'E4', 'F4', 'G4', 'A5', 'B5','C5', 'D5', 'E5', 'F5','G5'];
+    if (customizationArgs.sequenceToGuess && customizationArgs.sequenceToGuess.value) {
+      customizationArgs.sequenceToGuess.value.forEach(note => {
+
+        console.log("Current note : " + note.readableNoteName);  
+        console.log("Notes (shoudln't work): " + customizationArgs.sequenceToGuess );
+        console.log("Current note (full content): " + JSON.stringify(note, null, 2));
+
+        if (!validNotes.includes(note.readableNoteName)) {
+          warningsList.push({
+            type: 'ERROR',
+            message: 'Invalid note value:'  +  note.readableNoteName + '.Notes must be within the allowed musical range.',
+          });
+        }
+      });
+    }
+
+    // Checks if the total amount of notes exceed the maximum allowed.
+    if ( customizationArgs.sequenceToGuess && customizationArgs.sequenceToGuess.value.length > 8 ) {
+      warningsList.push({
+        type: 'ERROR',
+        message: 'Number of notes can not exceed the allowed limit of 8.',
+      });
+    }
+  
+    return warningsList;
+  }
 
   getAllWarnings(
     stateName: string,
