@@ -192,7 +192,7 @@
           </button>
         </div>
         <div *ngIf="topic.getId() && topicPreviewCardIsShown">
-          <oppia-preview-thumbnail [name]="editableName"
+          <oppia-preview-thumbnail [name]="'editableName'"
                                    [aspectRatio]="'4:3'"
                                    [previewFooter]="getPreviewFooter()"
                                    [filename]="topic.getThumbnailFilename()"

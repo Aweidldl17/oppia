@@ -145,7 +145,7 @@ export class ImageUploaderComponent implements OnInit {
         this.imageSave.emit({
           filename: imageFilename,
           bg_color: data.newBgColor,
-          image_data: imageBlobData,
+          image_data: data.newImageDataUrl,
         });
       },
       () => {

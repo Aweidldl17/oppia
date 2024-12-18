@@ -109,4 +109,9 @@ export class CreateNewTopicModalComponent extends ConfirmOrCancelModal {
       }
     );
   }
+
+  onImageSave(event: any) {
+    this.imageLocalStorageService.setThumbnailBgColor(event.bg_color);
+    this.imageLocalStorageService.saveImage(event.filename, event.image_data);
+  }
 }
