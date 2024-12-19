@@ -214,4 +214,9 @@ export class CreateNewSubtopicModalComponent
   localValueChange(event: string): void {
     this.htmlData = event;
   }
+
+  onImageSave(event: any) {
+    this.updateSubtopicThumbnailBgColor(event.bg_color);
+    this.updateSubtopicThumbnailFilename(event.filename);
+  }
 }

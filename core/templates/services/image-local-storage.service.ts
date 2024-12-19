@@ -151,6 +151,12 @@ export class ImageLocalStorageService {
       reader.onerror = error => reject(error);
     });
   }
+
+  saveImageFromBlob(filename: string, imageBlob: Blob): void {
+    const newRawImage = this._blobtoBase64(imageBlob).then(base64data => {
+      this.saveImage(filename, 'data:image/svg+xml;base64,' + base64data);
+    });
+  }
 }
 
 angular

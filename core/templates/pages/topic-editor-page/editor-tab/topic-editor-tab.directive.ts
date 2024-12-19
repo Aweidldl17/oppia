@@ -680,6 +680,11 @@ export class TopicEditorTabComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.directiveSubscriptions.unsubscribe();
   }
+
+  onImageSave(event: any) {
+    this.updateTopicThumbnailFilename(event.filename);
+    this.updateTopicThumbnailBgColor(event.bg_color);
+  }
 }
 
 angular.module('oppia').directive(
