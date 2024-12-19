@@ -644,4 +644,3 @@ angular
     'oppiaTranslationModal',
     downgradeComponent({component: TranslationModalComponent})
   );
-  
