@@ -953,6 +953,7 @@ export class ConversationSkinComponent {
     );
 
     if (this.displayedCard && this.displayedCard.isTerminal()) {
+      this.editableExplorationBackendApiService.resetExplorationProgressAsync(this.explorationId);
       this.isRefresherExploration = false;
       this.parentExplorationIds =
         this.urlService.getQueryFieldValuesAsList('parent');
