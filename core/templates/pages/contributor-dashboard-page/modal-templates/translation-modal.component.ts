@@ -11,13 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 /**
  * @fileoverview Component for the translation modal.
  */
-
 import isEqual from 'lodash/isEqual';
-
 import {
   ChangeDetectorRef,
   Component,
@@ -27,7 +24,6 @@ import {
 } from '@angular/core';
 import {downgradeComponent} from '@angular/upgrade/static';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-
 import {AlertsService} from 'services/alerts.service';
 import {CkEditorCopyContentService} from 'components/ck-editor-helpers/ck-editor-copy-content.service';
 import {ContextService} from 'services/context.service';
@@ -53,21 +49,17 @@ import {
 import {RteOutputDisplayComponent} from 'rich_text_components/rte-output-display.component';
 import {WindowDimensionsService} from 'services/contextual/window-dimensions.service';
 import {TranslatedContent} from 'domain/exploration/TranslatedContentObjectFactory';
-
 const INTERACTION_SPECS = require('interactions/interaction_specs.json');
-
 class UiConfig {
   'hide_complex_extensions': boolean;
   'startupFocusEnabled'?: boolean;
   'language'?: string;
   'languageDirection'?: string;
 }
-
 enum ExpansionTabType {
   CONTENT,
   TRANSLATION,
 }
-
 export interface TranslationOpportunity {
   id: string;
   heading: string;
@@ -102,20 +94,16 @@ export class TranslationError {
     private _hasDuplicateDescriptions: boolean,
     private _hasUntranslatedElements: boolean
   ) {}
-
   get hasDuplicateDescriptions(): boolean {
     return this._hasDuplicateDescriptions;
   }
-
   get hasDuplicateAltTexts(): boolean {
     return this._hasDuplicateAltTexts;
   }
-
   get hasUntranslatedElements(): boolean {
     return this._hasUntranslatedElements;
   }
 }
-
 @Component({
   selector: 'oppia-translation-modal',
   templateUrl: './translation-modal.component.html',
@@ -142,7 +130,6 @@ export class TranslationModalComponent {
     type: string;
     ui_config: UiConfig;
   };
-
   // Language description is null when active language code is invalid.
   languageDescription: string | null = null;
   UNICODE_SCHEMA: UnicodeSchema = {type: 'unicode'};
@@ -152,7 +139,6 @@ export class TranslationModalComponent {
       type: 'unicode',
     },
   };
-
   TRANSLATION_TIPS = AppConstants.TRANSLATION_TIPS;
   isActiveLanguageReviewer: boolean = false;
   hadCopyParagraphError: boolean = false;
@@ -174,16 +160,12 @@ export class TranslationModalComponent {
     'oppia-noninteractive-math',
     'oppia-noninteractive-skillreview',
   ];
-
   @ViewChild('contentPanel')
   contentPanel!: RteOutputDisplayComponent;
-
   @ViewChild('contentContainer')
   contentContainer!: ElementRef;
-
   @ViewChild('translationContainer')
   translationContainer!: ElementRef;
-
   constructor(
     public readonly activeModal: NgbActiveModal,
     private readonly alertsService: AlertsService,
@@ -199,11 +181,9 @@ export class TranslationModalComponent {
   ) {
     this.contextService = OppiaAngularRootComponent.contextService;
   }
-
   public get expansionTabType(): typeof ExpansionTabType {
     return ExpansionTabType;
   }
-
   ngOnInit(): void {
     this.activeLanguageCode =
       this.translationLanguageService.getActiveLanguageCode();
@@ -216,7 +196,6 @@ export class TranslationModalComponent {
     this.contextService.setImageSaveDestinationToLocalStorage();
     this.languageDescription =
       this.translationLanguageService.getActiveLanguageDescription();
-
     if (!this.modifyTranslationOpportunity) {
       // We need to set the context here so that the rte fetches
       // images for the given ENTITY_TYPE and targetId.
@@ -224,7 +203,6 @@ export class TranslationModalComponent {
         AppConstants.ENTITY_TYPE.EXPLORATION,
         this.opportunity.id
       );
-
       this.translateTextService.init(
         this.opportunity.id,
         this.translationLanguageService.getActiveLanguageCode(),
@@ -253,7 +231,6 @@ export class TranslationModalComponent {
         this.modifyTranslationOpportunity.currentContentTranslation.dataFormat;
       this.loadingData = false;
     }
-
     this.userService
       .getUserContributionRightsDataAsync()
       .then(userContributionRights => {
@@ -279,23 +256,18 @@ export class TranslationModalComponent {
       },
     };
   }
-
   ngAfterViewInit(): void {
     this.computePanelOverflowState();
   }
-
   ngAfterContentChecked(): void {
     this.computeTranslationEditorOverflowState();
   }
-
   computeTranslationEditorOverflowState(): void {
     const windowHeight = this.wds.getHeight();
     const heightLimit = (windowHeight * this.cutoff_height) / 100;
-
     this.isTranslationOverflowing =
       this.translationContainer?.nativeElement.offsetHeight >= heightLimit;
   }
-
   computePanelOverflowState(): void {
     // The delay of 500ms is required to allow the content to load
     // before the overflow status is calculated. Values less than
@@ -306,7 +278,6 @@ export class TranslationModalComponent {
         this.contentContainer?.nativeElement.offsetHeight;
     }, 500);
   }
-
   // TODO(#13221): Remove this method completely after the change detection
   // issues in schema-based-editor have been resolved. The current workaround
   // used is to destroy and re-render the component in the view.
@@ -315,26 +286,20 @@ export class TranslationModalComponent {
     this.changeDetectorRef.detectChanges();
     this.editorIsShown = true;
   }
-
   close(): void {
     this.activeModal.close();
-
     // Reset copyMode to the default value and avoid console errors.
     this.ckEditorCopyContentService.copyModeActive = false;
   }
-
   getHtmlSchema(): HTMLSchema {
     return this.HTML_SCHEMA;
   }
-
   getUnicodeSchema(): UnicodeSchema {
     return this.UNICODE_SCHEMA;
   }
-
   getSetOfStringsSchema(): ListSchema {
     return this.SET_OF_STRINGS_SCHEMA;
   }
-
   updateActiveState(translatableItem: TranslatableItem): void {
     ({
       text: this.textToTranslate,
@@ -353,7 +318,6 @@ export class TranslationModalComponent {
       interactionId
     );
   }
-
   toggleExpansionState(tab: ExpansionTabType): void {
     if (tab === ExpansionTabType.CONTENT) {
       this.isContentExpanded = !this.isContentExpanded;
@@ -361,7 +325,6 @@ export class TranslationModalComponent {
       this.isTranslationExpanded = !this.isTranslationExpanded;
     }
   }
-
   onContentClick(event: MouseEvent): boolean | void {
     if (this.triedToCopyParagraph(event)) {
       return (this.hadCopyParagraphError = true);
@@ -372,7 +335,6 @@ export class TranslationModalComponent {
     }
     this.ckEditorCopyContentService.broadcastCopy(event.target as HTMLElement);
   }
-
   triedToCopyParagraph($event: MouseEvent): boolean {
     // Mathematical equations are also wrapped by <p> elements.
     // Hence, math elements should be allowed to be copied.
@@ -385,41 +347,69 @@ export class TranslationModalComponent {
     );
     return target.localName === 'p' && !mathElementsIncluded;
   }
-
   isCopyModeActive(): boolean {
     return this.ckEditorCopyContentService.copyModeActive;
   }
-
   updateHtml($event: string): void {
     if ($event !== this.activeWrittenTranslation) {
       this.activeWrittenTranslation = $event;
       this.changeDetectorRef.detectChanges();
     }
   }
-
   hasPreviousTranslations(): boolean {
     return this.translateTextService.getActiveIndex() > 0;
   }
-
-  skipActiveTranslation(): void {
+  getTrimmedTranslationContent(): string {
+    const content = Array.isArray(this.activeWrittenTranslation)
+      ? this.activeWrittenTranslation.join('')
+      : this.activeWrittenTranslation || '';
+    return content.trim();
+  }
+  confirmUnsavedChanges(isSaveDisabled: boolean): boolean {
+    if (isSaveDisabled) {
+      return true;
+    }
+    console.log('sdfsdf');
+    const translationContent = this.getTrimmedTranslationContent();
+    if (translationContent !== '') {
+      return window.confirm(
+        'You have unsaved changes. Do you want to discard them?'
+      );
+    }
+    return true;
+  }
+  isSaveButtonDisabled(): boolean {
+    return (
+      this.loadingData ||
+      this.uploadingTranslation ||
+      this.activeWrittenTranslation === '' ||
+      this.isSubmitted()
+    );
+  }
+  skipActiveTranslation(popup: boolean = true): void {
+    if (popup) {
+      if (!this.confirmUnsavedChanges(this.isSaveButtonDisabled())) {
+        return;
+      }
+    }
     const translatableItem = this.translateTextService.getTextToTranslate();
     this.updateActiveState(translatableItem);
     ({more: this.moreAvailable} = translatableItem);
     this.resetEditor();
   }
-
   isSubmitted(): boolean {
     return this.activeStatus === 'submitted';
   }
-
   returnToPreviousTranslation(): void {
+    if (!this.confirmUnsavedChanges(this.isSaveButtonDisabled())) {
+      return;
+    }
     const translatableItem =
       this.translateTextService.getPreviousTextToTranslate();
     this.updateActiveState(translatableItem);
     this.moreAvailable = true;
     this.resetEditor();
   }
-
   isSetOfStringDataFormat(): boolean {
     return (
       this.activeDataFormat ===
@@ -427,7 +417,6 @@ export class TranslationModalComponent {
       this.activeDataFormat === TRANSLATION_DATA_FORMAT_SET_OF_UNICODE_STRING
     );
   }
-
   getFormattedContentType(
     contentType: string,
     interactionId: string | undefined
@@ -444,7 +433,6 @@ export class TranslationModalComponent {
     }
     return contentType;
   }
-
   getRuleDescription(ruleType?: string, interactionId?: string): string {
     if (!ruleType || !interactionId) {
       return '';
@@ -458,7 +446,6 @@ export class TranslationModalComponent {
       ruleDescription.replace(descriptionPattern, 'the following choices:')
     );
   }
-
   getElementAttributeTexts(
     elements: HTMLCollectionOf<Element>,
     type: string
@@ -485,7 +472,6 @@ export class TranslationModalComponent {
     // (string | undefined)[] and we need to remove the undefined elements.
     return attributes.filter(attributeValues => attributeValues) as string[];
   }
-
   getImageAttributeTexts(
     htmlElements: HTMLCollectionOf<Element>
   ): ImageDetails {
@@ -501,7 +487,6 @@ export class TranslationModalComponent {
       ),
     };
   }
-
   hasSomeDuplicateElements(
     originalElements: string[],
     translatedElements: string[]
@@ -522,7 +507,6 @@ export class TranslationModalComponent {
       !mathEquationRegex.test(element);
     return originalElements.some(hasMatchingTranslatedElement);
   }
-
   isTranslationCompleted(
     originalElements: HTMLCollectionOf<Element>,
     translatedElements: HTMLCollectionOf<Element>
@@ -545,7 +529,6 @@ export class TranslationModalComponent {
       .sort();
     return isEqual(filteredOriginalElements, filteredTranslatedElements);
   }
-
   validateTranslation(
     textToTranslate: HTMLCollectionOf<Element>,
     translatedText: HTMLCollectionOf<Element>
@@ -554,7 +537,6 @@ export class TranslationModalComponent {
       this.getImageAttributeTexts(translatedText);
     const originalElements: ImageDetails =
       this.getImageAttributeTexts(textToTranslate);
-
     const hasDuplicateAltTexts = this.hasSomeDuplicateElements(
       originalElements.alts,
       translatedElements.alts
@@ -567,14 +549,12 @@ export class TranslationModalComponent {
       textToTranslate,
       translatedText
     );
-
     return new TranslationError(
       hasDuplicateAltTexts,
       hasDuplicateDescriptions,
       hasUntranslatedElements
     );
   }
-
   translatedTextCanBeSubmitted(): boolean {
     if (!this.isSetOfStringDataFormat()) {
       const domParser = new DOMParser();
@@ -586,18 +566,15 @@ export class TranslationModalComponent {
         this.activeWrittenTranslation as string,
         'text/html'
       );
-
       const translationError = this.validateTranslation(
         originalElements.getElementsByTagName('*'),
         translatedElements.getElementsByTagName('*')
       );
-
       this.hasImgTextError =
         translationError.hasDuplicateAltTexts ||
         translationError.hasDuplicateDescriptions;
       this.hasIncompleteTranslationError =
         translationError.hasUntranslatedElements;
-
       if (
         this.hasImgTextError ||
         this.hasIncompleteTranslationError ||
@@ -606,19 +583,16 @@ export class TranslationModalComponent {
       ) {
         return false;
       }
-
       if (this.hadCopyParagraphError) {
         this.hadCopyParagraphError = false;
       }
     }
     return true;
   }
-
   suggestTranslatedText(): void {
     if (!this.translatedTextCanBeSubmitted()) {
       return;
     }
-
     if (!this.uploadingTranslation && !this.loadingData) {
       this.siteAnalyticsService.registerContributorDashboardSubmitSuggestionEvent(
         'Translation'
@@ -637,7 +611,7 @@ export class TranslationModalComponent {
           );
           this.uploadingTranslation = false;
           if (this.moreAvailable) {
-            this.skipActiveTranslation();
+            this.skipActiveTranslation(false);
             this.resetEditor();
           } else {
             this.activeWrittenTranslation = '';
@@ -670,3 +644,4 @@ angular
     'oppiaTranslationModal',
     downgradeComponent({component: TranslationModalComponent})
   );
+  

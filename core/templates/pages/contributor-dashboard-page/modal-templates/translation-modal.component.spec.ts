@@ -54,6 +54,7 @@ import {WrapTextWithEllipsisPipe} from 'filters/string-utility-filters/wrap-text
 // @ts-ignore
 import {RteOutputDisplayComponent} from 'rich_text_components/rte-output-display.component';
 import {TranslatedContent} from 'domain/exploration/TranslatedContentObjectFactory';
+import * as jest from 'jest-mock';
 
 enum ExpansionTabType {
   CONTENT,
@@ -521,30 +522,83 @@ describe('Translation Modal Component', () => {
   });
 
   describe('when skipping the active translation', () => {
-    describe('when there is available text', () => {
-      beforeEach(fakeAsync(() => {
-        component.ngOnInit();
+    describe('when the user has written text', () => {
+      it('should show a popup and skip if the user confirms', () => {
+        jest.spyOn(component, 'confirmUnsavedChanges').mockReturnValueOnce(true);
+        jest
+          .spyOn(component.translateTextService, 'getTextToTranslate')
+          .mockReturnValue({ more: false });
 
-        const sampleStateWiseContentMapping = {
-          stateName1: {contentId1: getContentTranslatableItemWithText('text1')},
-          stateName2: {contentId2: getContentTranslatableItemWithText('text2')},
-        };
+        component.activeWrittenTranslation = 'some text';
+        component.skipActiveTranslation(true);
 
-        const req = httpTestingController.expectOne(
-          '/gettranslatabletexthandler?exp_id=1&language_code=es'
-        );
-        expect(req.request.method).toEqual('GET');
-        req.flush({
-          state_names_to_content_id_mapping: sampleStateWiseContentMapping,
-          version: 1,
-        });
-        flushMicrotasks();
-        component.skipActiveTranslation();
-      }));
+        expect(component.activeWrittenTranslation).toBe('');
+        expect(component.moreAvailable).toBe(false);
+      });
 
-      it('should retrieve remaining text and availability', () => {
-        expect(component.textToTranslate).toBe('text2');
-        expect(component.moreAvailable).toBeFalse();
+      it('should show a popup and not skip if the user cancels', () => {
+        jest.spyOn(component, 'confirmUnsavedChanges').mockReturnValueOnce(false);
+
+        component.activeWrittenTranslation = 'some text';
+        component.skipActiveTranslation(true);
+
+        expect(component.activeWrittenTranslation).toBe('some text');
+      });
+    });
+
+    describe('when the user has not written text', () => {
+      it('should skip without showing a popup', () => {
+        jest.spyOn(component, 'confirmUnsavedChanges');
+        jest
+          .spyOn(component.translateTextService, 'getTextToTranslate')
+          .mockReturnValue({ more: false });
+
+        component.activeWrittenTranslation = '';
+        component.skipActiveTranslation(false);
+
+        expect(component.activeWrittenTranslation).toBe('');
+        expect(component.moreAvailable).toBe(false);
+      });
+    });
+  });
+
+  describe('when returning to a previous translation', () => {
+    describe('when the user has written text', () => {
+      it('should show a popup and return if the user confirms', () => {
+        jest.spyOn(component, 'confirmUnsavedChanges').mockReturnValueOnce(true);
+        jest
+          .spyOn(component.translateTextService, 'getPreviousTextToTranslate')
+          .mockReturnValue({ more: false });
+
+        component.activeWrittenTranslation = 'some text';
+        component.returnToPreviousTranslation();
+
+        expect(component.activeWrittenTranslation).toBe('');
+        expect(component.moreAvailable).toBe(true);
+      });
+
+      it('should show a popup and not return if the user cancels', () => {
+        jest.spyOn(component, 'confirmUnsavedChanges').mockReturnValueOnce(false);
+
+        component.activeWrittenTranslation = 'some text';
+        component.returnToPreviousTranslation();
+
+        expect(component.activeWrittenTranslation).toBe('some text');
+      });
+    });
+
+    describe('when the user has not written text', () => {
+      it('should return to the previous translation without showing a popup', () => {
+        jest.spyOn(component, 'confirmUnsavedChanges');
+        jest
+          .spyOn(component.translateTextService, 'getPreviousTextToTranslate')
+          .mockReturnValue({ more: true });
+
+        component.activeWrittenTranslation = '';
+        component.returnToPreviousTranslation();
+
+        expect(component.activeWrittenTranslation).toBe('');
+        expect(component.moreAvailable).toBe(true); 
       });
     });
   });
